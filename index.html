@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(99,102,241,0.18), transparent 35%),
+        radial-gradient(circle at 80% 80%, rgba(168,85,247,0.16), transparent 35%),
+        linear-gradient(135deg, #08090d, #11131a 50%, #090a0f);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #fff;
+    }
+
+    .calculator {
+      width: min(390px, 100%);
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 30px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025));
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.55),
+        0 8px 30px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    #display {
+      width: 100%;
+      height: 105px;
+      margin-bottom: 18px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 22px;
+      outline: none;
+      background: linear-gradient(145deg, rgba(0,0,0,0.7), rgba(15,17,24,0.95));
+      color: #f8fafc;
+      font-size: clamp(24px, 6vw, 36px);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-align: right;
+      box-shadow: inset 0 4px 15px rgba(0,0,0,0.45);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      height: 68px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.055));
+      color: #f8fafc;
+      font-size: 21px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.09));
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.96);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25), inset 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .trig {
+      background: linear-gradient(145deg, #059669, #065f46);
+      border-color: rgba(52,211,153,0.25);
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(5,150,105,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .trig:hover {
+      background: linear-gradient(145deg, #10b981, #047857);
+      box-shadow: 0 12px 25px rgba(5,150,105,0.32);
+    }
+
+    /* DEG button active state */
+    #degRadBtn.deg-active {
+      background: linear-gradient(145deg, #0d9488, #0f766e);
+      box-shadow: 0 8px 20px rgba(20,184,166,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .operator {
+      background: linear-gradient(145deg, #7c3aed, #5b21b6);
+      border-color: rgba(167,139,250,0.3);
+      box-shadow: 0 8px 20px rgba(124,58,237,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .operator:hover {
+      background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+      box-shadow: 0 12px 25px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+
+    .clear {
+      background: linear-gradient(145deg, #ef4444, #b91c1c);
+      border-color: rgba(248,113,113,0.25);
+      box-shadow: 0 8px 20px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .clear:hover {
+      background: linear-gradient(145deg, #f87171, #dc2626);
+      box-shadow: 0 12px 25px rgba(239,68,68,0.3);
+    }
+
+    .delete {
+      background: linear-gradient(145deg, #f59e0b, #b45309);
+      border-color: rgba(252,211,77,0.25);
+      font-size: 17px;
+      box-shadow: 0 8px 20px rgba(245,158,11,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .delete:hover {
+      background: linear-gradient(145deg, #fbbf24, #d97706);
+      box-shadow: 0 12px 25px rgba(245,158,11,0.3);
+    }
+
+    .equals {
+      background: linear-gradient(145deg, #06b6d4, #0e7490);
+      border-color: rgba(103,232,249,0.25);
+      box-shadow: 0 8px 20px rgba(6,182,212,0.22), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+    .equals:hover {
+      background: linear-gradient(145deg, #22d3ee, #0891b2);
+      box-shadow: 0 12px 25px rgba(6,182,212,0.32);
+    }
+
+    .zero { grid-column: span 2; }
+
+    button:focus-visible {
+      outline: 3px solid rgba(129,140,248,0.5);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .calculator { padding: 16px; border-radius: 26px; }
+      #display { height: 90px; padding: 17px; border-radius: 19px; font-size: 28px; }
+      .buttons { gap: 9px; }
+      button { height: 62px; border-radius: 18px; font-size: 19px; }
+      .trig { font-size: 13px; }
+    }
+
+    @media (max-width: 350px) {
+      .calculator { padding: 12px; }
+      .buttons { gap: 7px; }
+      button { height: 56px; border-radius: 16px; font-size: 17px; }
+      #display { height: 82px; font-size: 25px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <input type="text" id="display" readonly placeholder="0" />
+
+    <div class="buttons">
+      <!-- Trig row -->
+      <button class="trig" onclick="applyTrig('sin')">sin</button>
+      <button class="trig" onclick="applyTrig('cos')">cos</button>
+      <button class="trig" onclick="applyTrig('tan')">tan</button>
+      <button class="trig deg-active" id="degRadBtn" onclick="toggleDegRad()">DEG</button>
+
+      <!-- Row 1 -->
+      <button class="clear"    onclick="clearDisplay()">C</button>
+      <button class="delete"   onclick="deleteLast()">DEL</button>
+      <button class="operator" onclick="percentage()">%</button>
+      <button class="operator" onclick="appendOperator('/')">÷</button>
+
+      <!-- Row 2 -->
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button class="operator" onclick="appendOperator('*')">×</button>
+
+      <!-- Row 3 -->
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button class="operator" onclick="appendOperator('-')">−</button>
+
+      <!-- Row 4 -->
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button class="operator" onclick="appendOperator('+')">+</button>
+
+      <!-- Row 5 -->
+      <button class="zero"   onclick="appendValue('0')">0</button>
+      <button                onclick="appendValue('.')">.</button>
+      <button class="equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────
+    let angleMode   = "DEG";  // "DEG" | "RAD"
+    let pendingTrig = null;   // "sin" | "cos" | "tan" | null
+
+    // ── Helpers ────────────────────────────────────────────
+    function getDisplay() { return document.getElementById("display"); }
+
+    function toRadians(angle) {
+      return angleMode === "DEG" ? angle * (Math.PI / 180) : angle;
+    }
+
+    function roundResult(n) {
+      return parseFloat(n.toFixed(10));
+    }
+
+    function isError(v) {
+      return v === "Error" || v === "Undefined";
+    }
+
+    // ── Input ──────────────────────────────────────────────
+    function appendValue(value) {
+      const d = getDisplay();
+      // If a trig function is pending, the display shows e.g. "sin("
+      // Just keep appending digits after it.
+      if (isError(d.value)) {
+        // If there's a pending trig, restore the prefix; otherwise clear
+        d.value = pendingTrig ? pendingTrig + "(" : "";
+      }
+      d.value += value;
+    }
+
+    function appendOperator(op) {
+      const d = getDisplay();
+      // Can't start an expression or follow an error with an operator
+      if (!d.value || isError(d.value)) return;
+      // Don't allow an operator right after "sin(" etc.
+      if (/\($/.test(d.value)) return;
+      d.value = /[+\-*/]$/.test(d.value)
+        ? d.value.slice(0, -1) + op
+        : d.value + op;
+    }
+
+    function clearDisplay() {
+      pendingTrig = null;
+      getDisplay().value = "";
+    }
+
+    function deleteLast() {
+      const d = getDisplay();
+      if (isError(d.value)) {
+        d.value = "";
+        pendingTrig = null;
+        return;
+      }
+      // If deleting would leave just "sin(" or similar, clear the prefix too
+      const next = d.value.slice(0, -1);
+      if (/^(sin|cos|tan)\($/.test(next) || next === "") {
+        d.value = "";
+        pendingTrig = null;
+      } else {
+        d.value = next;
+      }
+    }
+
+    // ── Trig ───────────────────────────────────────────────
+    function toggleDegRad() {
+      angleMode = angleMode === "DEG" ? "RAD" : "DEG";
+      const btn = document.getElementById("degRadBtn");
+      btn.textContent = angleMode;
+      btn.classList.toggle("deg-active", angleMode === "DEG");
+    }
+
+    function applyTrig(fn) {
+      const d = getDisplay();
+
+      // If display already has a number (previous result or typed value),
+      // compute trig immediately so both flows work intuitively.
+      // Otherwise, set the pending prefix so user types the angle then hits =.
+      const raw = d.value;
+
+      if (raw && !isError(raw) && !/^(sin|cos|tan)\(/.test(raw)) {
+        // There's already a number — compute straight away
+        _computeTrig(fn, raw, d);
+      } else {
+        // No number yet — show "sin(" and wait for input + "="
+        pendingTrig = fn;
+        d.value = fn + "(";
+      }
+    }
+
+    function _computeTrig(fn, expr, d) {
+      try {
+        const cleaned = expr.replace(/[+\-*/]$/, "");
+        const angle   = parseFloat(eval(cleaned));
+        if (isNaN(angle)) { d.value = "Error"; pendingTrig = null; return; }
+
+        const radians = toRadians(angle);
+
+        if (fn === "tan" && Math.abs(Math.cos(radians)) < 1e-12) {
+          d.value = "Undefined";
+        } else {
+          d.value = roundResult(Math[fn](radians));
+        }
+        pendingTrig = null;
+      } catch (e) {
+        d.value = "Error";
+        pendingTrig = null;
+      }
+    }
+
+    // ── Calculate ──────────────────────────────────────────
+    function calculate() {
+      const d = getDisplay();
+      if (!d.value || isError(d.value)) return;
+
+      // Resolve a pending trig: "sin(30" → compute sin(30)
+      if (pendingTrig) {
+        // Strip the "sin(" prefix to get just the angle expression
+        const inner = d.value.replace(/^(sin|cos|tan)\(/, "");
+        if (!inner) return; // nothing typed yet
+        _computeTrig(pendingTrig, inner, d);
+        return;
+      }
+
+      // Normal arithmetic
+      try {
+        const expr   = d.value.replace(/[+\-*/]$/, "");
+        const result = eval(expr);
+        if (!isFinite(result)) { d.value = "Error"; return; }
+        d.value = roundResult(result);
+      } catch (e) {
+        d.value = "Error";
+      }
+    }
+
+    function percentage() {
+      const d = getDisplay();
+      if (!d.value || isError(d.value) || pendingTrig) return;
+      try {
+        d.value = roundResult(eval(d.value) / 100);
+      } catch (e) {
+        d.value = "Error";
+      }
+    }
+  </script>
+</body>
+</html>
